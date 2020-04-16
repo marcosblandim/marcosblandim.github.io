@@ -1,0 +1,34 @@
+#container2 {
+    margin-top: 0px;
+    overflow: hidden;
+    position: absolute;
+    height: 200px;
+}
+
+#check2 {
+    display: none;
+}
+
+.colapse-bar2{
+    background-color: #f4f4f4;
+    width: 400px;
+    cursor: pointer;
+    display: inline-block;
+    text-align: center;
+    cursor: pointer;
+}
+
+.colapse-bar-text2{
+    background-color: #888;
+    width: 400px;
+    margin-top: -200px;
+    max-height: 200px;
+    transition: margin-top 1s ease-in-out;
+    overflow: hidden;
+    position: absolute;
+    z-index: -1;
+}
+
+#check2:checked + .colapse-bar-text2{
+    margin-top: 0px;
+}

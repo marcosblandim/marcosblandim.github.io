@@ -1,0 +1,26 @@
+#check1 {
+    display: none;
+}
+
+.colapse-bar1{
+    background-color: #f4f4f4;
+    color: black;
+    width: 400px;
+    cursor: pointer;
+    display: inline-block;
+    text-align: center;
+}
+
+.colapse-bar-text1{
+    background-color: #888;
+    color: black;
+    width: 400px;
+    max-height: 0;
+    transition: max-height 1s;
+    overflow: hidden;
+}
+
+#check1:checked + .colapse-bar-text1{
+    overflow-y: auto;
+    max-height: 400px;
+}
