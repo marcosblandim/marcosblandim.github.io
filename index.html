@@ -20,6 +20,7 @@
             position: absolute;
         }
         #btn {
+            color: black;
             z-index: 9;
             position: absolute;
         }
@@ -55,8 +56,7 @@
         <div id="bird"></div>
         <p id="points" style="margin-top: 0px">POINTS: 0</p>
         <p id="record" style="margin-top: 25px"></p>
-        <button onclick = "restartGame()" id="btn" style="margin-top: 50px" >RESTART</button>
-        <p id='rules' style="margin-top: 75px">-> Click to jump.<br>-> Press SPACE to jump.</p>
+        <p id='rules' style="margin-top: 50px">CONTROLS:<br>-> Click/SPACE: jump.<br>-> q: pause<br>-> h: hard mode<br>-> r: restart</p>
         <div class="pipe"></div>
         <div class="pipe"></div>
         <div class="pipe"></div>
@@ -141,7 +141,7 @@
         pipes.velocity = 7; // 5
         pipes.space = 200;
         pipes.aux_distance = 0;
-        pipes.x_vel = 1;
+        pipes.y_vel = 1;
 
         canvas.style.width = pipes.number_of_pipes*(pipes.width + pipes.distance) - pipes.distance + 'px';
 
@@ -181,7 +181,7 @@
         function movePipe(pipe){
             addX(pipe,-1*pipes.velocity);
             pipe.data[0] = inverteTheta(pipe.data[0]);
-            pipe.data[0] += pipes.x_vel;
+            pipe.data[0] += pipes.y_vel;
             if(getX(pipe) <= -1*pipes.width){
                 pipe.data = getInitialData();
                 pipe.height = getHeight(...pipe.data);
@@ -277,9 +277,26 @@
             if(pause){handlePause()}
             else{handleJump()}
         }
-        handlePause = (e) => pause = !pause; 
+        handlePause = (e) => pause = !pause;
+        handleKeyPress = (e) =>{
+            switch(e.key){
+                case 'q':
+                    handlePause();
+                    break; 
+                case ' ':
+                    handleClick();
+                    break;
+                case 'r':
+                    restartGame();
+                    break;
+                case 'h':
+                    pipes.y_vel = pipes.y_vel ? 0 : 1;
+                    break;
+
+            }
+        } 
         document.onmousedown = handleClick;
-        document.onkeypress = handlePause;
+        document.onkeypress = handleKeyPress;
 
         // main.
         function main(){
