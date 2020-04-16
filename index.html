@@ -284,6 +284,7 @@
                     handlePause();
                     break; 
                 case ' ':
+                    if (ended || end()) {restartGame()}
                     handleClick();
                     break;
                 case 'r':
