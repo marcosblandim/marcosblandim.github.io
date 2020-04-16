@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        #canvas {
+            background-color: #32dbe2;
+            overflow: hidden;
+            margin-top: 0px;
+            margin-left: 0px;
+            border: 10px solid black;
+            position: absolute;
+            z-index: 10;
+        }
+        #bird {
+            background-color: #fed11c;
+            border-radius: 500px;
+            position: absolute;
+        }
+        #btn {
+            z-index: 9;
+            position: absolute;
+        }
+        #points {
+            color: brown;
+            z-index: 9;
+            position: absolute;
+        }
+        #record {
+            color: brown;
+            z-index: 9;
+            position: absolute;
+        }
+        .pipe {
+            background-color: rgb(1, 146, 1);
+            z-index: 8;
+            position: absolute;
+        }
+        .pipeTop {
+            background-color: rgb(1, 146, 1);
+            z-index: 8;
+            position: absolute;
+        }
+    </style>
+</head>
+<body>
+    <div id="canvas">
+        <div id="bird"></div>
+        <p id="points" style="margin-top: 0px">POINTS: 0</p>
+        <p id="record" style="margin-top: 25px"></p>
+        <button onclick = "restartGame()" id="btn" style="margin-top: 50px" >RESTART</button>
+        <div class="pipe"></div>
+        <div class="pipe"></div>
+        <div class="pipe"></div>
+        <div class="pipeTop"></div>
+        <div class="pipeTop"></div>
+        <div class="pipeTop"></div>
+    </div>
+    <script>
+        
+        // - fazer space random
+
+        // variables.
+        g = 0.5; // 0.1
+        discrete_time = 17;
+        jump = -9;
+        points = 0;
+        pause = true;
+        ended = false;
+        PI = Math.PI;
+        cos = Math.cos; 
+        document.getElementById("record").innerHTML = "RECORD: " + getRecord();
+
+        // functios.
+        getCoords = (obj) => {
+            return [parseInt(obj.style.marginLeft.split('px')[0]),parseInt(obj.style.marginTop.split('px')[0])];
+        }
+        setCoords = (obj,x,y) => {
+            obj.style.marginLeft = x + 'px';
+            obj.style.marginTop = y + 'px';
+        }
+        setY = (obj,y) =>{
+            setCoords(obj,getCoords(obj)[0],y)
+        }
+        getY = (obj) =>{
+            return getCoords(obj)[1]
+        }
+        addY = (obj,dy) =>{
+            setY(obj,getY(obj)+dy);
+        }
+        setX = (obj,x) =>{
+            setCoords(obj,x,getCoords(obj)[1])
+        }
+        getX = (obj) =>{
+            return getCoords(obj)[0]
+        }
+        addX = (obj,dx) =>{
+            setX(obj,getX(obj)+dx);
+        }
+
+        // creat bird.
+        bird = document.getElementById("bird");
+
+        // init bird.
+        bird.fixed_x = 200;
+        setCoords(bird,bird.fixed_x,100);
+        bird.velocity = 0;
+        bird.width = 40;
+        bird.height = 40;
+        bird.style.width = bird.width + 'px';
+        bird.style.height = bird.height + 'px';
+        hitGround = () =>{
+            return getY(bird) >= canvas.ground;
+        }
+        hitCell = () =>{
+            return getY(bird) <= canvas.cell;
+        }
+
+        // init canvas.
+        canvas = document.getElementById("canvas");
+        canvas.maxH = 600;
+        canvas.maxW = 1200;
+        canvas.style.height = canvas.maxH + 'px';
+        canvas.ground = canvas.maxH-bird.height;
+        canvas.cell = 0;
+
+        // init pipes.
+        pipes = document.querySelectorAll(".pipe");
+        pipesTop = document.querySelectorAll(".pipeTop");
+        pipes.number_of_pipes = 3;
+        pipes.width = 90;
+        pipes.distance = 400;
+        pipes.velocity = 7; // 5
+        pipes.space = 200;
+        pipes.aux_distance = 0;
+        pipes.x_vel = 1;
+
+        canvas.style.width = pipes.number_of_pipes*(pipes.width + pipes.distance) - pipes.distance + 'px';
+
+        // create pipes.
+        [...pipes].map((pipe) => {
+            pipe.style.width = pipes.width + 'px';
+            // pipe.theta = getInitialTheta();
+            pipe.data = getInitialData();
+            pipe.height = getHeight(...pipe.data);
+            pipe.style.height = pipe.height + 'px';
+            setCoords(pipe,canvas.maxW + pipes.aux_distance,canvas.maxH-pipe.height);
+            pipes.aux_distance += pipes.distance;
+        });
+        // create bottom pipes.
+        pipes.aux_distance = 0;
+        aux_index = 0;
+        [...pipesTop].map((pipeTop) => {
+            pipeTop.style.width = pipes.width + 'px';
+            pipeTop.height = canvas.maxH - pipes[aux_index++%pipes.number_of_pipes].height - pipes.space;
+            pipeTop.style.height = pipeTop.height + 'px';
+            setCoords(pipeTop,canvas.maxW + pipes.aux_distance,0);
+            pipes.aux_distance += pipes.distance;
+        });
+
+        function hitPipe(){
+            check = (pipe) =>{
+                checkX = (getX(pipe) < (bird.fixed_x+bird.width)) && (getX(pipe) > (bird.fixed_x - pipes.width));
+                if (checkX && !pause && !ended){
+                    points++;
+                    document.getElementById("points").innerHTML = "POINTS: " + parseInt(points/18);
+                }
+                checkY = ((getY(bird) < getY(pipe) - pipes.space) || ((getY(bird) + bird.height) > getY(pipe)));
+                return (checkX && checkY);
+            }
+            return [...pipes].some(check);
+        }
+        function movePipe(pipe){
+            addX(pipe,-1*pipes.velocity);
+            pipe.data[0] = inverteTheta(pipe.data[0]);
+            pipe.data[0] += pipes.x_vel;
+            if(getX(pipe) <= -1*pipes.width){
+                pipe.data = getInitialData();
+                pipe.height = getHeight(...pipe.data);
+                pipe.style.height = pipe.height + 'px';
+                setCoords(pipe,canvas.maxW,canvas.maxH-pipe.height);
+            }else{
+                pipe.height = getHeight(...pipe.data);
+                pipe.style.height = pipe.height + 'px';
+                setY(pipe,canvas.maxH-pipe.height)
+            }
+        }
+        function movePipeTop(pipe){
+            addX(pipe,-1*pipes.velocity);
+            if(getX(pipe) <= -1*pipes.width){
+                pipe.height = canvas.maxH - pipes[aux_index++%pipes.number_of_pipes].height - pipes.space;
+                pipe.style.height = pipe.height + 'px';
+                setX(pipe,canvas.maxW)
+            }else{
+                pipe.height = canvas.maxH - pipes[aux_index++%pipes.number_of_pipes].height - pipes.space;
+                pipe.style.height = pipe.height + 'px';
+            }
+        }
+        function getInitialData(){
+            x=0;y=2*PI; // 0,2PI
+            theta = Math.random()*(y-x)+x;
+            x=20;y=400; // 20,400
+            i = Math.random()*(y-x)+x;
+            x=20;y=400; // 20,400
+            j = Math.abs(Math.random()*(y-x)+x);
+            x=0.002;y=0.008; // 0.002,0.008
+            f = Math.random()*(y-x)+x;
+            return [theta,i,j,f]
+        }
+        function getHeight(theta,i,j,f){
+            height = (cos(2*PI*f*theta) + 1)*((j-i)/2) + i;
+            return height;
+        }
+
+        function getRandomHeight(){
+            i = 50;
+            j = 400;
+            return Math.random()*(j-i)+i;
+        }
+        function resetPipe(pipe){
+            pipe.height = getRandomHeight();
+            pipe.style.height = pipe.height + 'px';
+            setCoords(pipe,canvas.maxW,canvas.maxH-pipe.height);
+        }
+        function inverteTheta(theta){
+            chance = 0.999; // 0.99 - 0.999
+            invert = Math.random() > chance;
+            if(invert){
+                theta *= -1;
+                // direction = theta%PI;
+                // if(direction < PI){theta = PI}
+                // else{theta = 0}
+            }
+            return theta
+        }
+
+        // game functions.
+        function end(){
+            last_endend = ended;
+            ended = hitGround() || hitCell() || hitPipe();
+            if(last_endend!=ended && getRecord() < points/18){
+                console.log(getRecord(),points,getRecord() < points/18)
+                setRecord(points/18);
+                document.getElementById("record").innerHTML = "RECORD: " + getRecord();
+            }
+            return ended;
+        }
+        function restartGame(){
+            window.location.reload(false);
+        }
+        hardJump = () =>{
+            if(bird.velocity > 0){bird.velocity=0}
+            bird.velocity += jump_value;
+        }
+        easyJump = () =>{
+            bird.velocity = jump
+        }
+        handleJump = easyJump;
+        function setRecord(record){
+            window.localStorage.setItem("record",parseInt(record))
+        }
+        function getRecord(){
+            if(!window.localStorage.getItem("record")){window.localStorage.setItem("record",0)};
+            return window.localStorage.getItem("record");
+        }
+
+        // click/press.
+        handleClick = () =>{
+            if(pause){handlePause()}
+            else{handleJump()}
+        }
+        handlePause = (e) => pause = !pause; 
+        document.onmousedown = handleClick;
+        document.onkeypress = handlePause;
+
+        // main.
+        function main(){
+            if(!end() && !pause){
+                bird.velocity += g;
+                addY(bird,bird.velocity);
+                [...pipes].map(movePipe);
+                [...pipesTop].map(movePipeTop);
+            }
+            setTimeout(main,discrete_time);
+        }
+        main();
+
+    </script>
+</body>
+</html>
