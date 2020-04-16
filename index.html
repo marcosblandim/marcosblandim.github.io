@@ -56,7 +56,7 @@
         <div id="bird"></div>
         <p id="points" style="margin-top: 0px">POINTS: 0</p>
         <p id="record" style="margin-top: 25px"></p>
-        <p id='rules' style="margin-top: 50px">CONTROLS:<br>-> Click/SPACE: jump.<br>-> q: pause<br>-> h: hard mode<br>-> r: restart</p>
+        <p id='rules' style="margin-top: 50px">CONTROLS:<br>-> Click/SPACE: jump.<br>-> q: pause<br>-> r: restart<br>-> h: hard mode (OFF)</p>
         <div class="pipe"></div>
         <div class="pipe"></div>
         <div class="pipe"></div>
@@ -141,7 +141,7 @@
         pipes.velocity = 7; // 5
         pipes.space = 200;
         pipes.aux_distance = 0;
-        pipes.y_vel = 1;
+        pipes.y_vel = 0;
 
         canvas.style.width = pipes.number_of_pipes*(pipes.width + pipes.distance) - pipes.distance + 'px';
 
@@ -292,6 +292,8 @@
                     break;
                 case 'h':
                     pipes.y_vel = pipes.y_vel ? 0 : 1;
+                    text = "CONTROLS:<br>-> Click/SPACE: jump.<br>-> q: pause<br>-> r: restart<br>-> h: hard mode (" + (pipes.y_vel ? "ON" : "OFF") + ')'
+                    document.getElementById("rules").innerHTML = text;
                     break;
 
             }
