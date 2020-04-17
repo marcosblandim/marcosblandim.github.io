@@ -7,8 +7,6 @@
     <style>
         #canvas {
             overflow: hidden;
-            margin-top: 0px;
-            margin-left: 0px;
             position: absolute;
             z-index: 10;
         }
@@ -97,22 +95,21 @@
 </head>
 <body>
     <div id="canvas">
-        <div id="bird"><img src="bird.png" alt="" /></div>
+        <div id="bird"><img draggable="false" src="bird.png" alt="" /></div>
         <p id="points" style="margin-top: 0px">POINTS: 0</p>
         <p id="record" style="margin-top: 25px"></p>
         <p id='rules' style="margin-top: 50px">CONTROLS:<br>-> Click/SPACE: jump.<br>-> q: pause<br>-> r: restart<br>-> h: hard mode (OFF)</p>
-        <div class="pipe"><img src="pipe.png" alt="" class="pipe-image"/></div>
-        <div class="pipe"><img src="pipe.png" alt="" class="pipe-image"/></div>
-        <div class="pipe"><img src="pipe.png" alt="" class="pipe-image"/></div>
-        <div class="pipeTop"><img src="pipeTop.png" alt="" class="pipeTop-image"/></div>
-        <div class="pipeTop"><img src="pipeTop.png" alt="" class="pipeTop-image"/></div>
-        <div class="pipeTop"><img src="pipeTop.png" alt="" class="pipeTop-image"/></div>
-        <img src="clound.png" alt="" class="canvas-back"/>
+        <div class="pipe"><img draggable="false" src="pipe.png" alt="" class="pipe-image"/></div>
+        <div class="pipe"><img draggable="false" src="pipe.png" alt="" class="pipe-image"/></div>
+        <div class="pipe"><img draggable="false" src="pipe.png" alt="" class="pipe-image"/></div>
+        <div class="pipeTop"><img draggable="false" src="pipeTop.png" alt="" class="pipeTop-image"/></div>
+        <div class="pipeTop"><img draggable="false" src="pipeTop.png" alt="" class="pipeTop-image"/></div>
+        <div class="pipeTop"><img draggable="false" src="pipeTop.png" alt="" class="pipeTop-image"/></div>
+        <img draggable="false" src="clound.png" alt="" class="canvas-back"/>
     </div>
     <script>
         
         // - tela de game over
-        // - botar imagens 
         // - record global
         // - alinhar jogo para o centro
         // - new record warn
@@ -284,14 +281,14 @@
             setCoords(pipe,canvas.maxW,canvas.maxH-pipe.height);
         }
         function inverteTheta(theta){
-            chance = 0.999; // 0.99 - 0.999
-            invert = Math.random() > chance;
-            if(invert){
-                theta *= -1;
-                // direction = theta%PI;
-                // if(direction < PI){theta = PI}
-                // else{theta = 0}
-            }
+            // chance = 0; // 0.99 - 0.999
+            // invert = Math.random() > chance;
+            // if(invert){
+            //     theta *= -1;
+            //     // direction = theta%PI;
+            //     // if(direction < PI){theta = PI}
+            //     // else{theta = 0}
+            // }
             return theta
         }
         // function getBirdDegree(vel){
