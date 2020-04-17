@@ -6,17 +6,13 @@
     <title>Document</title>
     <style>
         #canvas {
-            background-color: #32dbe2;
             overflow: hidden;
             margin-top: 0px;
             margin-left: 0px;
-            border: 5px solid green;
             position: absolute;
             z-index: 10;
         }
         #bird {
-            /* border: 2px solid black;
-            background-color: #fed11c; */
             border-radius: 500px;
             position: absolute;
             user-select: none; /* supported by Chrome and Opera */
@@ -61,8 +57,8 @@
             -ms-user-select: none; /* Internet Explorer/Edge */
         }
         .pipe {
-            border: 3px solid black;
-            background-color: rgb(1, 146, 1);
+            /* border: 3px solid black;
+            background-color: rgb(1, 146, 1); */
             z-index: 8;
             position: absolute;
         }
@@ -73,6 +69,30 @@
             z-index: 8;
             position: absolute;
         }
+        .canvas-back {
+            width: 1200px;
+            height: 605px;
+            position: absolute;
+            user-select: none; /* supported by Chrome and Opera */
+            -webkit-user-select: none; /* Safari */
+            -khtml-user-select: none; /* Konqueror HTML */
+            -moz-user-select: none; /* Firefox */
+            -ms-user-select: none; /* Internet Explorer/Edge */
+            z-index: -20;
+        }
+        .pipe-image {
+            width: 105px;
+            /* height: 1000px; */
+            margin-top: -5px;
+            margin-left: -8px;
+            position: absolute;
+        }
+        .pipeTop-image {
+            width: 105px;
+            /* height: 1000px; */
+            margin-left: -8px;
+            position: relative;
+        }
     </style>
 </head>
 <body>
@@ -81,12 +101,13 @@
         <p id="points" style="margin-top: 0px">POINTS: 0</p>
         <p id="record" style="margin-top: 25px"></p>
         <p id='rules' style="margin-top: 50px">CONTROLS:<br>-> Click/SPACE: jump.<br>-> q: pause<br>-> r: restart<br>-> h: hard mode (OFF)</p>
-        <div class="pipe"></div>
-        <div class="pipe"></div>
-        <div class="pipe"></div>
-        <div class="pipeTop"></div>
-        <div class="pipeTop"></div>
-        <div class="pipeTop"></div>
+        <div class="pipe"><img src="pipe.png" alt="" class="pipe-image"/></div>
+        <div class="pipe"><img src="pipe.png" alt="" class="pipe-image"/></div>
+        <div class="pipe"><img src="pipe.png" alt="" class="pipe-image"/></div>
+        <div class="pipeTop"><img src="pipeTop.png" alt="" class="pipeTop-image"/></div>
+        <div class="pipeTop"><img src="pipeTop.png" alt="" class="pipeTop-image"/></div>
+        <div class="pipeTop"><img src="pipeTop.png" alt="" class="pipeTop-image"/></div>
+        <img src="clound.png" alt="" class="canvas-back"/>
     </div>
     <script>
         
@@ -95,6 +116,7 @@
         // - record global
         // - alinhar jogo para o centro
         // - new record warn
+        // - pause/hardMode/restart button
 
         // variables.
         g = 0.5; // 0.5
@@ -139,7 +161,7 @@
 
         // init bird.
         bird.fixed_x = 200;
-        setCoords(bird,bird.fixed_x,100);
+        setCoords(bird,bird.fixed_x,220);
         bird.velocity = 0;
         bird.width = 40;
         bird.height = 40;
@@ -171,6 +193,7 @@
         pipes.aux_distance = 0;
         pipes.y_vel = 0;
 
+        pipeTopImageHeight = 413;
         canvas.style.width = pipes.number_of_pipes*(pipes.width + pipes.distance) - pipes.distance + 'px';
 
         // create pipes.
@@ -186,12 +209,14 @@
         // create bottom pipes.
         pipes.aux_distance = 0;
         aux_index = 0;
+        pipeTopImage = document.getElementsByClassName("pipeTop-image");
         [...pipesTop].map((pipeTop) => {
             pipeTop.style.width = pipes.width + 'px';
             pipeTop.height = canvas.maxH - pipes[aux_index++%pipes.number_of_pipes].height - pipes.space;
             pipeTop.style.height = pipeTop.height + 'px';
             setCoords(pipeTop,canvas.maxW + pipes.aux_distance,0);
             pipes.aux_distance += pipes.distance;
+            pipeTopImage[(aux_index-1)%pipes.number_of_pipes].style.marginTop = pipeTop.height - pipeTopImageHeight + 'px' // height - pipeImageHeight
         });
 
         function hitPipe(){
@@ -226,18 +251,19 @@
             if(getX(pipe) <= -1*pipes.width){
                 pipe.height = canvas.maxH - pipes[aux_index++%pipes.number_of_pipes].height - pipes.space;
                 pipe.style.height = pipe.height + 'px';
-                setX(pipe,canvas.maxW)
+                setX(pipe,canvas.maxW);
             }else{
                 pipe.height = canvas.maxH - pipes[aux_index++%pipes.number_of_pipes].height - pipes.space;
                 pipe.style.height = pipe.height + 'px';
             }
+            pipeTopImage[(aux_index-1)%pipes.number_of_pipes].style.marginTop = pipe.height - pipeTopImageHeight + 'px'; // height - pipeImageHeight
         }
         function getInitialData(){
             x=0;y=2*PI; // 0,2PI
             theta = Math.random()*(y-x)+x;
-            x=20;y=400; // 20,400
+            x=50;y=350; // 20,400
             i = Math.random()*(y-x)+x;
-            x=20;y=400; // 20,400
+            x=50;y=350; // 20,400
             j = Math.abs(Math.random()*(y-x)+x);
             x=0.002;y=0.008; // 0.002,0.008
             f = Math.random()*(y-x)+x;
@@ -247,10 +273,9 @@
             height = (cos(2*PI*f*theta) + 1)*((j-i)/2) + i;
             return height;
         }
-
         function getRandomHeight(){
             i = 50;
-            j = 400;
+            j = 350;
             return Math.random()*(j-i)+i;
         }
         function resetPipe(pipe){
@@ -357,7 +382,7 @@
         // main.
         function main(){
             if(!end() && !pause){
-                bird.velocity += g;
+                if(bird.velocity < 40){bird.velocity += g} // speed limit
                 bird.style.transform = 'rotate('+getBirdDegree(bird.velocity)+'deg)';
                 addY(bird,bird.velocity);
                 [...pipes].map(movePipe);
