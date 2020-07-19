@@ -1,2 +1,2 @@
 # marcosblandim.github.io
-Deploy projects with github pages.
+Deploying my JS Flappy bird project with github pages.
